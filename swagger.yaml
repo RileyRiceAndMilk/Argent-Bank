@@ -110,6 +110,65 @@ paths:
           description: Invalid Fields
         '500':
           description: Internal Server Error
+  /users/{userId}/transaction:
+        post:
+        security:
+           - Bearer: []
+        tags:
+          - User Module
+          - Account Module 
+          - Transaction Module
+        summary: Transaction and Account Management API
+        description: API for viewing transactions and managing account information.
+        parameters:
+          - in: header
+            name: Authorization
+            description: Attach Bearer JWT token for authentication
+            required: true
+          - in: body
+            name: body
+            description: Request body to view account and transaction details
+            required: true
+        produces:
+          - application/json
+        responses:
+         '200':
+           description: User account and transaction retrieved successully
+           schema:
+             $ref: '#/definitions/ApiResponse'
+         '400':
+           description: Invalid Fields
+         '500':
+           description: Internal Server Error
+        put:
+         security:
+          - Bearer: []
+         tags:
+          - User Module
+          - Account Module 
+          - Transaction Module
+        summary: Update transaction details
+        description: API endpoint to update specific transaction attributes such as note or category.
+        parameters:
+          - in: header
+            name: Authorization
+            description: Attach Bearer JWT token for authentication
+            required: true
+          - in: body
+            name: body
+            description: Request body to update transaction details
+            required: true
+        produces:
+          - application/json
+        responses:
+         '200':
+           description: Transaction updated successfully
+         schema:
+          $ref: '#/definitions/ApiResponse'
+         '400':
+           description: Invalid Fields
+         '500':
+            description: Internal Server Error
 securityDefinitions:
   Bearer:
     type: apiKey
@@ -164,3 +223,23 @@ definitions:
         type: string
       lastName:
         type: string
+  Usertransaction:
+  type: object
+  properties:
+    date:
+      type: string
+      format: date-time
+    description:
+      type: string
+    amount:
+      type: number
+    balance:
+      type: number
+    transactionType:
+      type: string
+    category:
+      type: string
+    note:
+      type: string
+    availableBalance:
+      type: number
