@@ -242,4 +242,4 @@ definitions:
     note:
       type: string
     availableBalance:
-      type: number
+      type: number 
