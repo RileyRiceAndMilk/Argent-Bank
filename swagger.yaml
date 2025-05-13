@@ -33,6 +33,7 @@ paths:
           description: Invalid Fields
         '500':
           description: Internal Server Error
+
   /user/signup:
     post:
       tags:
@@ -57,6 +58,7 @@ paths:
           description: Invalid Fields
         '500':
           description: Internal Server Error
+
   /user/profile:
     post:
       security:
@@ -68,13 +70,14 @@ paths:
       parameters:
         - in: header
           name: Authorization
+          type: string
           description: Attach Bearer JWT token
           required: true
       produces:
         - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile retrieved successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
@@ -86,11 +89,12 @@ paths:
         - Bearer: []
       tags:
         - User Module
-      summary: User Profile API
+      summary: Update User Profile
       description: API for updating a user profile
       parameters:
         - in: header
           name: Authorization
+          type: string
           description: Attach Bearer JWT token
           required: true
         - in: body
@@ -103,100 +107,146 @@ paths:
         - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile updated successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
           description: Invalid Fields
         '500':
           description: Internal Server Error
-  /users/{userId}/transaction:
-        post:
-        security:
-           - Bearer: []
-        tags:
-          - User Module
-          - Account Module 
-          - Transaction Module
-        summary: Transaction and Account Management API
-        description: API for viewing transactions and managing account information.
-        parameters:
-          - in: header
-            name: Authorization
-            description: Attach Bearer JWT token for authentication
-            required: true
-          - in: body
-            name: body
-            description: Request body to view account and transaction details
-            required: true
-        produces:
-          - application/json
-        responses:
-         '200':
-           description: User account and transaction retrieved successully
-           schema:
-             $ref: '#/definitions/ApiResponse'
-         '400':
-           description: Invalid Fields
-         '500':
-           description: Internal Server Error
-        put:
-         security:
-          - Bearer: []
-         tags:
-          - User Module
-          - Account Module 
-          - Transaction Module
-        summary: Update transaction details
-        description: API endpoint to update specific transaction attributes such as note or category.
-        parameters:
-          - in: header
-            name: Authorization
-            description: Attach Bearer JWT token for authentication
-            required: true
-          - in: body
-            name: body
-            description: Request body to update transaction details
-            required: true
-        produces:
-          - application/json
-        responses:
-         '200':
-           description: Transaction updated successfully
-         schema:
-          $ref: '#/definitions/ApiResponse'
-         '400':
-           description: Invalid Fields
-         '500':
-            description: Internal Server Error
+          # commmencer ici 
+  /user/transaction:
+    post: # Synonyme de create
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Create Transaction
+      description: API for creating a new transaction
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Attach Bearer JWT token
+          required: true
+        - in: body
+          name: body
+          description: Transaction Payload
+          required: true
+          schema:
+            $ref: '#/definitions/BodyCreateUsertransaction'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Transaction created successfully
+          schema:
+            $ref: '#/definitions/Usertransaction'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
+    get: # Synonyme de read
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Get Transactions
+      description: API for retrieving user's transactions and available balance
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Attach Bearer JWT token
+          required: true
+      ## @TODO : ajouter un filtre  : Id, category
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          schema:
+            type: object
+            properties:
+              availableBalance:
+                type: number
+              transactions:
+                type: array
+                items:
+                  $ref: '#/definitions/Usertransaction'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
+    put: # Synonyme de update
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Update Transaction
+      description: API for updating a transaction's category and note
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Attach Bearer JWT token
+          required: true
+        - in: body
+          name: body
+          description: Update transaction fields
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateTransaction'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transaction updated successfully
+          schema:
+            $ref: '#/definitions/Usertransaction'
+        '400':
+          description: Invalid Fields
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal Server Error
+
 securityDefinitions:
   Bearer:
     type: apiKey
     name: Authorization
     in: header
+    # reprendre un peu plus bas
+
 definitions:
   User:
+    type: object
     properties:
       email:
         type: string
-        description: user email
+        description: User email
       password:
         type: string
-        description: user password
+        description: User password
       firstName:
         type: string
-        description: user first name
+        description: User first name
       lastName:
         type: string
-        description: user last name
+        description: User last name
+
   Login:
+    type: object
     properties:
       email:
         type: string
-        description: user email
+        description: User email
       password:
         type: string
-        description: user password
+        description: User password
+
   ApiResponse:
     type: object
     properties:
@@ -211,11 +261,13 @@ definitions:
             type: string
           email:
             type: string
+
   LoginResponse:
     type: object
     properties:
       token:
         type: string
+
   UserProfile:
     type: object
     properties:
@@ -223,23 +275,84 @@ definitions:
         type: string
       lastName:
         type: string
+
+# reprendre ici 
+  BodyCreateUsertransaction:
+    type: object
+    required:
+      - amount
+      - transactionType
+      - category
+      - destAccountNumber
+      - accountNumber
+    properties:
+      description:
+        type: string
+      amount:
+        $ref: '#/definitions/Amount'
+      transactionType:
+        type: string
+      category:
+        type: string
+      note:
+        type: string
+      destAccountNumber:
+        type: string
+      accountNumber:
+        type: string
+  Amount:
+    type: object
+    required:
+      - amount
+      - currency
+    properties:
+      amount:
+        type: number
+        example: 100
+      currency:
+        type: string
+        description: Iso Alpha
+        example: EUR
   Usertransaction:
-  type: object
-  properties:
-    date:
-      type: string
-      format: date-time
-    description:
-      type: string
-    amount:
-      type: number
-    balance:
-      type: number
-    transactionType:
-      type: string
-    category:
-      type: string
-    note:
-      type: string
-    availableBalance:
-      type: number 
+    type: object
+    properties:
+      id:
+        type: string
+      date:
+        type: string
+        format: date-time
+      description:
+        type: string
+      amount:
+        type: number
+      balance:
+        type: number
+      transactionType:
+        type: string
+      category:
+        type: string
+      note:
+        type: string
+      availableBalance:
+        type: number
+      destAccountNumber:
+        type: string
+      accountNumber:
+        type: string
+  UpdateTransaction:
+    type: object
+    required:
+      - transactionId
+      - category
+      - note
+    properties:
+      transactionId:
+        type: string
+        description: ID of the transaction to update
+      category:
+        type: string
+        description: New category for the transaction
+      note:
+        type: string
+        description: New note for the transaction
+
