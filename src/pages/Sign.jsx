@@ -23,6 +23,9 @@ const SignInPage = () => {
 
         if (user) {
           localStorage.setItem('userId', user.id);
+          localStorage.setItem('userFirstName', user.firstName);
+          localStorage.setItem('userLastName', user.lastName);
+
           navigate('/userPage');
         } else {
           setErrorMessage('Nom d’utilisateur ou mot de passe invalide');
