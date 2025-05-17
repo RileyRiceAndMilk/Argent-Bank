@@ -65,7 +65,7 @@ paths:
         - Bearer: []
       tags:
         - User Module
-      summary: User Profile API
+      summary: Get User Profile
       description: API for fetching a user profile
       parameters:
         - in: header
@@ -84,6 +84,7 @@ paths:
           description: Invalid Fields
         '500':
           description: Internal Server Error
+
     put:
       security:
         - Bearer: []
@@ -114,9 +115,42 @@ paths:
           description: Invalid Fields
         '500':
           description: Internal Server Error
-          # commmencer ici 
+
+  /user/transactions:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Get Transactions
+      description: API for retrieving user's transactions and available balance
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Attach Bearer JWT token
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          schema:
+            type: object
+            properties:
+              availableBalance:
+                type: number
+              transactions:
+                type: array
+                items:
+                  $ref: '#/definitions/Usertransaction'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
   /user/transaction:
-    post: # Synonyme de create
+    post:
       security:
         - Bearer: []
       tags:
@@ -147,40 +181,7 @@ paths:
         '500':
           description: Internal Server Error
 
-    get: # Synonyme de read
-      security:
-        - Bearer: []
-      tags:
-        - Transaction Module
-      summary: Get Transactions
-      description: API for retrieving user's transactions and available balance
-      parameters:
-        - in: header
-          name: Authorization
-          type: string
-          description: Attach Bearer JWT token
-          required: true
-      ## @TODO : ajouter un filtre  : Id, category
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Transactions retrieved successfully
-          schema:
-            type: object
-            properties:
-              availableBalance:
-                type: number
-              transactions:
-                type: array
-                items:
-                  $ref: '#/definitions/Usertransaction'
-        '400':
-          description: Invalid Fields
-        '500':
-          description: Internal Server Error
-
-    put: # Synonyme de update
+    patch:
       security:
         - Bearer: []
       tags:
@@ -218,7 +219,6 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
-    # reprendre un peu plus bas
 
 definitions:
   User:
@@ -276,7 +276,6 @@ definitions:
       lastName:
         type: string
 
-# reprendre ici 
   BodyCreateUsertransaction:
     type: object
     required:
@@ -300,6 +299,7 @@ definitions:
         type: string
       accountNumber:
         type: string
+
   Amount:
     type: object
     required:
@@ -313,6 +313,7 @@ definitions:
         type: string
         description: Iso Alpha
         example: EUR
+
   Usertransaction:
     type: object
     properties:
@@ -339,6 +340,7 @@ definitions:
         type: string
       accountNumber:
         type: string
+
   UpdateTransaction:
     type: object
     required:
